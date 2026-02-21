@@ -62,7 +62,7 @@
     }
   },
   "scripts": {
-    "package": "vsce package"
+    "package": "node scripts/package.js"
   },
   "devDependencies": {
     "@vscode/vsce": "^2.32.0"
