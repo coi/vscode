@@ -13,7 +13,10 @@ function run() {
   try {
     const packagedReadme = originalReadme
       .replace(/images\/logo\.svg/g, 'images/logo.png')
-      .replace(/https:\/\/github\.com\/coi\/coi\/raw\/HEAD\/images\/logo\.svg/g, 'https://github.com/coi/coi/raw/HEAD/images/logo.png');
+      .replace(
+        /https:\/\/github\.com\/coi\/(?:vscode|coi)\/(?:blob|raw)\/(?:main|HEAD)\/images\/logo\.(?:svg|png)/g,
+        'https://github.com/coi/vscode/raw/main/images/logo.png'
+      );
 
     fs.writeFileSync(readmePath, packagedReadme, 'utf8');
 
