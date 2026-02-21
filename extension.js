@@ -589,7 +589,7 @@ const formatter = new CoiFormatter();
 function activate(context) {
     console.log('Coi Language extension activated');
 
-    // Load definitions from bundled defs/ folder or custom path
+    // Load definitions from coi --defs-path or custom path
     loadDefinitions(context);
 
     // Register completion provider

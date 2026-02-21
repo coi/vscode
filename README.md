@@ -15,7 +15,7 @@ Language support for [Coi](https://github.com/coi/coi): syntax highlighting, com
 ## What you get
 
 - Full syntax highlighting for `.coi` (including `view`, `style`, `init`, `mount`, `tick`)
-- Automatic `.d.coi` definition discovery (bundled by default, or from `coi.definitionsPath`)
+- Automatic `.d.coi` definition discovery via `coi --defs-path` (or set `coi.definitionsPath` manually)
 - Completions for platform APIs, keywords, core types, and common methods
 - Hover + signature help for function calls and framework APIs
 - Built-in document formatter for consistent spacing and indentation
@@ -24,7 +24,7 @@ Language support for [Coi](https://github.com/coi/coi): syntax highlighting, com
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `coi.definitionsPath` | `""` | Path to `.d.coi` definitions. Empty = bundled definitions. |
+| `coi.definitionsPath` | `""` | Path to `.d.coi` definitions. Empty = auto-detect via `coi --defs-path`. |
 | `coi.format.enable` | `true` | Enable COI document formatting. |
 
 ## Format document

@@ -2,7 +2,7 @@
   "name": "coi-language",
   "displayName": "Coi Language",
   "description": "Language support for Coi - syntax highlighting, completions, hover, signature help, and formatting",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "publisher": "coi-lang",
   "icon": "logo.png",
   "repository": {
@@ -51,7 +51,7 @@
         "coi.definitionsPath": {
           "type": "string",
           "default": "",
-          "description": "Path to Coi definition files (.d.coi). Leave empty to use bundled definitions."
+          "description": "Path to Coi definition files (.d.coi). Leave empty to auto-detect with 'coi --defs-path'."
         },
         "coi.format.enable": {
           "type": "boolean",
