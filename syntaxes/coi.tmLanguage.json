@@ -105,17 +105,19 @@
       "patterns": [
         {
           "comment": "Method calls like obj.method() or Type.method()",
-          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\.([a-zA-Z_][a-zA-Z0-9_]*)(\\s*<\\s*[^>]+\\s*>)?\\s*\\(",
           "captures": {
             "1": { "name": "variable.other.object.coi" },
-            "2": { "name": "entity.name.function.coi" }
+            "2": { "name": "entity.name.function.coi" },
+            "3": { "name": "entity.name.type.parameter.coi" }
           }
         },
         {
           "comment": "Standalone function calls (excluding keywords like if, else, for, while)",
-          "match": "\\b(?!(?:if|else|for|while|match|return|yield|component|def|view|tick|init|mount|app|import|struct|style|type|global|in|computed|enum|key)\\b)([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+          "match": "\\b(?!(?:if|else|for|while|match|return|yield|component|def|view|tick|init|mount|app|import|struct|style|type|global|in|computed|enum|key)\\b)([a-zA-Z_][a-zA-Z0-9_]*)(\\s*<\\s*[^>]+\\s*>)?\\s*\\(",
           "captures": {
-            "1": { "name": "entity.name.function.coi" }
+            "1": { "name": "entity.name.function.coi" },
+            "2": { "name": "entity.name.type.parameter.coi" }
           }
         }
       ]
@@ -191,10 +193,11 @@
       }
     },
     "pod-definition": {
-      "match": "\\b(pod)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+      "match": "\\b(pod)\\s+([A-Za-z_][A-Za-z0-9_]*)(\\s*<\\s*[A-Z][A-Za-z0-9_]*(?:\\s*,\\s*[A-Z][A-Za-z0-9_]*)*\\s*>)?",
       "captures": {
         "1": { "name": "keyword.control.coi" },
-        "2": { "name": "entity.name.type.class.coi" }
+        "2": { "name": "entity.name.type.class.coi" },
+        "3": { "name": "entity.name.type.parameter.coi" }
       }
     },
     "component-reference": {
@@ -258,10 +261,11 @@
       "patterns": [{ "include": "source.css" }]
     },
     "function-definition": {
-      "match": "\\b(def)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
+      "match": "\\b(def)\\s+([A-Za-z_][A-Za-z0-9_]*)(\\s*<\\s*[A-Z][A-Za-z0-9_]*(?:\\s*,\\s*[A-Z][A-Za-z0-9_]*)*\\s*>)?\\s*\\(",
       "captures": {
         "1": { "name": "storage.type.function.coi" },
-        "2": { "name": "entity.name.function.coi" }
+        "2": { "name": "entity.name.function.coi" },
+        "3": { "name": "entity.name.type.parameter.coi" }
       }
     },
     "router-block": {

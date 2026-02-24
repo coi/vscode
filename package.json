@@ -2,12 +2,12 @@
   "name": "coi-language",
   "displayName": "Coi Language",
   "description": "Language support for Coi - syntax highlighting, completions, hover, signature help, and formatting",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "publisher": "coi-lang",
   "icon": "logo.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/coi/coi.git"
+    "url": "https://github.com/coi/vscode.git"
   },
   "engines": {
     "vscode": "^1.74.0"

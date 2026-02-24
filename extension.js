@@ -3,6 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const IDENT_PATTERN = '[A-Za-z_][A-Za-z0-9_]*';
+const TYPE_PATTERN = `${IDENT_PATTERN}(?:\\s*<[^>]+>)?(?:\\s*\\[[^\\]]*\\])*\\s*&?`;
+
+function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // =========================================================
 // Coi Formatter
 // =========================================================
@@ -171,7 +178,7 @@ class CoiFormatter {
         }
 
         // Format variable declarations
-        if (/^(pub\s+)?(mut\s+)?(\w+)\s+\w+/.test(line)) {
+        if (new RegExp(`^(?:pub\\s+)?(?:mut\\s+)?${TYPE_PATTERN}\\s+${IDENT_PATTERN}\\b`).test(line)) {
             return this.formatVariableDeclaration(line);
         }
 
@@ -407,6 +414,8 @@ class CoiDefinitions {
     // Parse a single .d.coi file
     parseDefinitionFile(content, sourcePath) {
         const lines = content.split('\n');
+        const typeDefRegex = new RegExp(`^type\\s+def\\s+(${IDENT_PATTERN})(?:\\s*<([^>]+)>)?\\s*\\(([^)]*)\\)\\s*:\\s*(${TYPE_PATTERN})`);
+        const defRegex = new RegExp(`^def\\s+(${IDENT_PATTERN})(?:\\s*<([^>]+)>)?\\s*\\(([^)]*)\\)\\s*:\\s*(${TYPE_PATTERN})`);
         let currentBlock = null;  // { kind: 'type'|'namespace', name: string, methods: [] }
         let braceDepth = 0;
 
@@ -455,17 +464,18 @@ class CoiDefinitions {
 
                 // Parse method definitions
                 // type def methodName(...): ReturnType { ... }
-                const typeDefMatch = trimmed.match(/^type\s+def\s+(\w+)\s*\(([^)]*)\)\s*:\s*(\w+)/);
+                const typeDefMatch = trimmed.match(typeDefRegex);
                 // def methodName(...): ReturnType { ... }
-                const defMatch = trimmed.match(/^def\s+(\w+)\s*\(([^)]*)\)\s*:\s*(\w+)/);
+                const defMatch = trimmed.match(defRegex);
                 // // maps to: ns::func
                 const mapsToMatch = trimmed.match(/\/\/\s*maps to:\s*(\w+)::(\w+)/);
 
                 if (typeDefMatch) {
                     const method = {
                         name: typeDefMatch[1],
-                        params: this.parseParams(typeDefMatch[2]),
-                        returnType: typeDefMatch[3],
+                        typeParams: this.parseTypeParams(typeDefMatch[2]),
+                        params: this.parseParams(typeDefMatch[3]),
+                        returnType: typeDefMatch[4].trim(),
                         isTypeMethod: true,
                         mapsTo: null,
                         line: lineNumber
@@ -475,8 +485,9 @@ class CoiDefinitions {
                 } else if (defMatch) {
                     const method = {
                         name: defMatch[1],
-                        params: this.parseParams(defMatch[2]),
-                        returnType: defMatch[3],
+                        typeParams: this.parseTypeParams(defMatch[2]),
+                        params: this.parseParams(defMatch[3]),
+                        returnType: defMatch[4].trim(),
                         isTypeMethod: false,
                         mapsTo: null,
                         line: lineNumber
@@ -510,10 +521,21 @@ class CoiDefinitions {
         });
     }
 
+    parseTypeParams(typeParamStr) {
+        if (!typeParamStr || !typeParamStr.trim()) return [];
+        return typeParamStr
+            .split(',')
+            .map(param => param.trim())
+            .filter(Boolean);
+    }
+
     // Parse a user .coi file to extract components
     parseUserFile(content) {
         const components = new Map();
         const lines = content.split('\n');
+        const methodRegex = new RegExp(`^def\\s+(${IDENT_PATTERN})(?:\\s*<([^>]+)>)?\\s*\\(([^)]*)\\)\\s*:\\s*(${TYPE_PATTERN})`);
+        const propRegex = new RegExp(`^prop\\s+(mut\\s+)?(${TYPE_PATTERN})\\s+(${IDENT_PATTERN})\\b`);
+        const stateRegex = new RegExp(`^(mut\\s+)?(${TYPE_PATTERN})\\s+(${IDENT_PATTERN})\\s*=`);
         let currentComponent = null;
         let braceDepth = 0;
 
@@ -538,33 +560,36 @@ class CoiDefinitions {
                 braceDepth -= (line.match(/\}/g) || []).length;
 
                 // prop mut? type& name;
-                const propMatch = trimmed.match(/^prop\s+(mut\s+)?(\w+)(&)?\s+(\w+)/);
+                const propMatch = trimmed.match(propRegex);
                 if (propMatch) {
+                    const rawType = propMatch[2].trim();
+                    const reference = rawType.endsWith('&');
                     currentComponent.props.push({
-                        name: propMatch[4],
-                        type: propMatch[2],
+                        name: propMatch[3],
+                        type: reference ? rawType.slice(0, -1).trim() : rawType,
                         mutable: !!propMatch[1],
-                        reference: !!propMatch[3]
+                        reference
                     });
                 }
 
                 // mut? type name = ...;
-                const stateMatch = trimmed.match(/^(mut\s+)?(\w+)\s+(\w+)\s*=/);
+                const stateMatch = trimmed.match(stateRegex);
                 if (stateMatch && !trimmed.startsWith('prop')) {
                     currentComponent.state.push({
                         name: stateMatch[3],
-                        type: stateMatch[2],
+                        type: stateMatch[2].trim(),
                         mutable: !!stateMatch[1]
                     });
                 }
 
                 // def name(...) : type {
-                const methodMatch = trimmed.match(/^def\s+(\w+)\s*\(([^)]*)\)\s*:\s*(\w+)/);
+                const methodMatch = trimmed.match(methodRegex);
                 if (methodMatch) {
                     currentComponent.methods.push({
                         name: methodMatch[1],
-                        params: this.parseParams(methodMatch[2]),
-                        returnType: methodMatch[3]
+                        typeParams: this.parseTypeParams(methodMatch[2]),
+                        params: this.parseParams(methodMatch[3]),
+                        returnType: methodMatch[4].trim()
                     });
                 }
 
@@ -1124,12 +1149,14 @@ function getSignatureHelp(document, position) {
 // Helper: find variable type by looking at declarations
 function findVariableType(document, position, varName) {
     const text = document.getText();
+    const escapedVarName = escapeRegExp(varName);
+    const declTypePattern = `(${TYPE_PATTERN})`;
 
     // Pattern: Type varName = ... or Type varName;
     const patterns = [
-        new RegExp(`(\\w+)\\s+${varName}\\s*=`),
-        new RegExp(`(\\w+)\\s+${varName}\\s*;`),
-        new RegExp(`mut\\s+(\\w+)\\s+${varName}\\s*=`)
+        new RegExp(`${declTypePattern}\\s+${escapedVarName}\\s*=`),
+        new RegExp(`${declTypePattern}\\s+${escapedVarName}\\s*;`),
+        new RegExp(`mut\\s+${declTypePattern}\\s+${escapedVarName}\\s*=`)
     ];
 
     for (const pattern of patterns) {
