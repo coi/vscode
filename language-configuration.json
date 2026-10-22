@@ -3,26 +3,72 @@
     "lineComment": "//"
   },
   "brackets": [
-    ["{", "}"],
-    ["[", "]"],
-    ["(", ")"],
-    ["<", ">"]
+    [
+      "{",
+      "}"
+    ],
+    [
+      "[",
+      "]"
+    ],
+    [
+      "(",
+      ")"
+    ]
   ],
   "autoClosingPairs": [
-    { "open": "{", "close": "}" },
-    { "open": "[", "close": "]" },
-    { "open": "(", "close": ")" },
-    { "open": "\"", "close": "\"", "notIn": ["string"] },
-    { "open": "'", "close": "'", "notIn": ["string"] },
-    { "open": "<", "close": ">", "notIn": ["string"] }
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "[",
+      "close": "]"
+    },
+    {
+      "open": "(",
+      "close": ")"
+    },
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": [
+        "string"
+      ]
+    },
+    {
+      "open": "`",
+      "close": "`",
+      "notIn": [
+        "string"
+      ]
+    }
   ],
   "surroundingPairs": [
-    { "open": "{", "close": "}" },
-    { "open": "[", "close": "]" },
-    { "open": "(", "close": ")" },
-    { "open": "\"", "close": "\"" },
-    { "open": "'", "close": "'" },
-    { "open": "<", "close": ">" }
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "[",
+      "close": "]"
+    },
+    {
+      "open": "(",
+      "close": ")"
+    },
+    {
+      "open": "\"",
+      "close": "\""
+    },
+    {
+      "open": "`",
+      "close": "`"
+    },
+    {
+      "open": "<",
+      "close": ">"
+    }
   ],
   "indentationRules": {
     "increaseIndentPattern": "^.*\\{[^}]*$|<[a-zA-Z]([^>]*[^/])?>(?!.*</)",
@@ -30,7 +76,7 @@
   },
   "folding": {
     "markers": {
-      "start": "^\\s*(component|view|style|init|mount|tick|def)\\s*.*\\{\\s*$",
+      "start": "^\\s*(pub\\s+)?(component|pod|enum|view|style|init|mount|tick|def|router|app)\\b.*\\{\\s*$",
       "end": "^\\s*\\}"
     }
   },

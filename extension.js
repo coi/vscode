@@ -820,14 +820,14 @@ function getCompletions(document, position) {
 
     // Top-level completions (types, namespaces, keywords)
     // Keywords
-    const keywords = ['component', 'def', 'view', 'style', 'prop', 'mut', 'pub', 'tick', 'init', 'mount', 'if', 'else', 'for', 'while', 'match', 'return', 'yield', 'import', 'app', 'struct', 'in', 'key'];
+    const keywords = ['component', 'pod', 'enum', 'def', 'module', 'import', 'view', 'style', 'mut', 'pub', 'shared', 'tick', 'init', 'mount', 'router', 'signal', 'listen', 'emit', 'if', 'else', 'for', 'while', 'break', 'continue', 'match', 'return', 'yield', 'in', 'key', 'app', 'true', 'false'];
     for (const kw of keywords) {
         const item = new vscode.CompletionItem(kw, vscode.CompletionItemKind.Keyword);
         items.push(item);
     }
 
     // Types
-    const types = ['int', 'float', 'string', 'bool', 'void'];
+    const types = ['int', 'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64', 'float', 'float32', 'float64', 'string', 'bool', 'void'];
     for (const t of types) {
         const item = new vscode.CompletionItem(t, vscode.CompletionItemKind.TypeParameter);
         items.push(item);
